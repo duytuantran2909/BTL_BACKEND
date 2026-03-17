@@ -18,7 +18,7 @@ Tùy chọn (để chạy migrations bằng CLI):
 
 ---
 
-## Chạy nhanh (khuyến nghị khi nộp/chấm)
+## Chạy nhanh 
 
 ### 1) Cấu hình connection string
 
