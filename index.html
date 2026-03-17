@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Community Hall Manager</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f5fb;
+      color: #2c3e50;
+    }
+    header {
+      background: linear-gradient(90deg, #4e73df, #1cc88a);
+      color: #fff;
+      padding: 14px 28px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 600;
+    }
+    header span {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    nav {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    nav button {
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+    nav button.active,
+    nav button:hover {
+      background: #fff;
+      color: #2c3e50;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.14);
+    }
+
+    main {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section {
+      display: none;
+      margin-top: 10px;
+    }
+    .section.active {
+      display: block;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.12);
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card h2 span.icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #fff;
+      background: #4e73df;
+    }
+    .card small {
+      display: block;
+      color: #6c757d;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px 16px;
+      margin-top: 8px;
+    }
+    label {
+      font-size: 13px;
+      color: #374151;
+      display: block;
+      margin-bottom: 4px;
+    }
+    input, select {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      background: #f9fafb;
+    }
+    input:focus, select:focus {
+      border-color: #4e73df;
+      box-shadow: 0 0 0 2px rgba(78,115,223,0.15);
+      background: #fff;
+    }
+    .btn-primary {
+      border: none;
+      background: #4e73df;
+      color: #fff;
+      padding: 7px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      margin-top: 6px;
+      transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.25);
+    }
+    .btn-primary:hover {
+      background: #3553b8;
+      transform: translateY(-1px);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    .btn-small {
+      font-size: 12px;
+      padding: 4px 10px;
+      margin: 0 2px;
+    }
+    .btn-outline {
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: #374151;
+      box-shadow: none;
+    }
+    .btn-outline:hover {
+      background: #f3f4f6;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 6px 8px;
+    }
+    th {
+      background: #f3f4f6;
+      text-align: left;
+      font-weight: 600;
+      color: #4b5563;
+    }
+    tbody tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      color: #fff;
+    }
+    .tag-green { background:#1cc88a; }
+    .tag-yellow { background:#f6c23e; }
+    .tag-red { background:#e74a3b; }
+    .tag-blue { background:#4e73df; }
+
+    .muted {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    @media (max-width: 768px) {
+      header { padding: 10px 16px; }
+      main { padding: 12px; }
+      .card { padding: 12px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Community Hall Manager</h1>
+    <span>Quản lý Nhà văn hóa, Phòng, Đặt lịch, Hóa đơn & Thanh toán</span>
+    <nav>
+      <button id="tab-hall" class="active" onclick="showSection('hallSection','tab-hall')">Nhà văn hóa & Phòng</button>
+      <button id="tab-booking" onclick="showSection('bookingSection','tab-booking')">Đặt lịch</button>
+      <button id="tab-invoice" onclick="showSection('invoiceSection','tab-invoice')">Hóa đơn & Thanh toán</button>
+      <button id="tab-report" onclick="showSection('reportSection','tab-report')">Báo cáo</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 1. Nhà văn hóa & Phòng -->
+    <section id="hallSection" class="section active">
+      <div class="card">
+        <h2><span class="icon">🏛</span>Nhà văn hóa</h2>
+        <small>Thêm, xem danh sách các nhà văn hóa trong xã/phường.</small>
+
+        <div class="form-grid">
+          <div>
+            <label>Tên nhà văn hóa</label>
+            <input id="hallName" placeholder="Nhà văn hóa xã A" />
+          </div>
+          <div>
+            <label>Địa chỉ</label>
+            <input id="hallAddress" placeholder="Thôn / tổ dân phố..." />
+          </div>
+          <div>
+            <label>Người quản lý</label>
+            <input id="hallManager" placeholder="Nguyễn Văn B" />
+          </div>
+          <div>
+            <label>Số điện thoại</label>
+            <input id="hallPhone" placeholder="0912xxxxxx" />
+          </div>
+        </div>
+        <button class="btn-primary" onclick="createHall()">+ Thêm nhà văn hóa</button>
+
+        <table id="hallTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tên</th>
+              <th>Địa chỉ</th>
+              <th>Quản lý</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th> 
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">📍</span>Phòng / Hội trường</h2>
+        <small>Gắn phòng vào nhà văn hóa để phục vụ đặt lịch sử dụng.</small>
+
+        <div class="form-grid">
+          <div>
+            <label>ID Nhà văn hóa</label>
+            <input id="roomHallId" type="number" placeholder="1" />
+          </div>
+          <div>
+            <label>Tên phòng</label>
+            <input id="roomName" placeholder="Hội trường lớn" />
+          </div>
+          <div>
+            <label>Loại phòng</label>
+            <select id="roomType">
+              <option value="HoiTruong">Hội trường</option>
+              <option value="PhongHop">Phòng họp</option>
+              <option value="SanTheThao">Sân thể thao</option>
+              <option value="Khac">Khác</option>
+            </select>
+          </div>
+          <div>
+            <label>Sức chứa</label>
+            <input id="roomCapacity" type="number" placeholder="100" />
+          </div>
+          <div>
+            <label>Giá/giờ (VNĐ)</label>
+            <input id="roomPrice" type="number" placeholder="100000" />
+          </div>
+        </div>
+        <button class="btn-primary" onclick="createRoom()">+ Thêm phòng</button>
+
+        <table id="roomTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tên phòng</th>
+              <th>Nhà VH ID</th>
+              <th>Loại</th>
+              <th>Giá/giờ</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 2. Đặt lịch -->
+    <section id="bookingSection" class="section">
+      <div class="card">
+        <h2><span class="icon">📅</span>Đặt lịch sử dụng phòng</h2>
+        <small>Tạo phiếu đăng ký sử dụng hội trường / phòng họp.</small>
+
+        <div class="form-grid">
+          <div>
+            <label>ID Phòng</label>
+            <input id="bookingRoomId" type="number" placeholder="1" />
+          </div>
+          <div>
+            <label>Tên đơn vị / người đăng ký</label>
+            <input id="bookingRequesterName" placeholder="Tổ dân phố 1" />
+          </div>
+          <div>
+            <label>Số điện thoại</label>
+            <input id="bookingPhone" placeholder="0900xxxxxx" />
+          </div>
+          <div>
+            <label>Đơn vị</label>
+            <input id="bookingUnit" placeholder="Tổ 1, thôn A..." />
+          </div>
+          <div>
+            <label>Bắt đầu (yyyy-mm-ddThh:mm)</label>
+            <input id="bookingStart" placeholder="2026-03-20T18:00" />
+          </div>
+          <div>
+            <label>Kết thúc</label>
+            <input id="bookingEnd" placeholder="2026-03-20T21:00" />
+          </div>
+          <div>
+            <label>Số người dự kiến</label>
+            <input id="bookingPeople" type="number" placeholder="80" />
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="createBooking()">+ Tạo booking (Chờ duyệt)</button>
+        <p class="muted">Sau khi tạo, bấm nút <b>Duyệt</b> ở bảng phía dưới để chuyển sang trạng thái <b>DaDuyet</b>.</p>
+
+        <table id="bookingTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Phòng</th>
+              <th>Người/Đơn vị</th>
+              <th>Bắt đầu</th>
+              <th>Kết thúc</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. Hóa đơn & Thanh toán -->
+    <section id="invoiceSection" class="section">
+      <div class="card">
+        <h2><span class="icon">🧾</span>Tạo hóa đơn từ Booking</h2>
+        <small>Tự động tính số giờ và tiền phòng, cộng thêm phí thiết bị / phí khác.</small>
+
+        <div class="form-grid">
+          <div>
+            <label>ID Booking</label>
+            <input id="invBookingId" type="number" placeholder="1" />
+          </div>
+          <div>
+            <label>Phí thiết bị (VNĐ)</label>
+            <input id="invEquipFee" type="number" value="0" />
+          </div>
+          <div>
+            <label>Phí khác (VNĐ)</label>
+            <input id="invOtherFee" type="number" value="0" />
+          </div>
+          <div>
+            <label>Giảm giá (VNĐ)</label>
+            <input id="invDiscount" type="number" value="0" />
+          </div>
+          <div>
+            <label>Số ngày hạn thanh toán</label>
+            <input id="invDueDays" type="number" value="7" />
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="generateInvoice()">+ Tạo hóa đơn</button>
+
+        <table id="invoiceTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>BookingID</th>
+              <th>PhòngID</th>
+              <th>Giờ</th>
+              <th>Tiền phòng</th>
+              <th>Tổng tiền</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th> 
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">💰</span>Thanh toán hóa đơn</h2>
+        <small>Ghi nhận thanh toán, nếu đủ tiền thì hóa đơn sẽ chuyển trạng thái <b>DaThanhToan</b>.</small>
+
+        <div class="form-grid">
+          <div>
+            <label>ID Hóa đơn</label>
+            <input id="payInvoiceId" type="number" placeholder="1" />
+          </div>
+          <div>
+            <label>Tên người trả</label>
+            <input id="payPayerName" placeholder="Tổ dân phố 1" />
+          </div>
+          <div>
+            <label>Số tiền trả</label>
+            <input id="payAmount" type="number" placeholder="350000" />
+          </div>
+          <div>
+            <label>Phương thức</label>
+            <select id="payMethod">
+              <option value="TienMat">Tiền mặt</option>
+              <option value="ChuyenKhoan">Chuyển khoản</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="createPayment()">+ Thanh toán</button>
+
+        <table id="paymentTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>InvoiceID</th>
+              <th>Người trả</th>
+              <th>Số tiền</th>
+              <th>Phương thức</th>
+              <th>Ngày</th>
+              <th>Thao tác</th> 
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. Báo cáo -->
+    <section id="reportSection" class="section">
+      <div class="card">
+        <h2><span class="icon">📊</span>Báo cáo tổng quan</h2>
+        <small>Xem nhanh doanh thu & số lượt đặt theo từng tháng.</small>
+        <button class="btn-primary btn-small" onclick="loadReports()">↻ Làm mới báo cáo</button>
+
+        <h3>Doanh thu theo tháng</h3>
+        <table id="revenueTable">
+          <thead>
+            <tr>
+              <th>Tháng</th>
+              <th>Tổng hóa đơn</th>
+              <th>Tổng tiền (VNĐ)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <h3>Lượt đặt theo tháng</h3>
+        <table id="usageTable">
+          <thead>
+            <tr>
+              <th>Tháng</th>
+              <th>Tổng lượt đặt</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "http://localhost:5180/api"; // sửa port nếu backend khác
+
+    function showSection(id, tabId) {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+    }
+
+    async function apiGet(path) {
+      const res = await fetch(`${API_BASE}${path}`);
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+    async function apiPost(path, body) {
+      const res = await fetch(`${API_BASE}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+    async function apiPut(path, body) {
+      const res = await fetch(`${API_BASE}${path}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: body ? JSON.stringify(body) : null
+      });
+      if (!res.ok) throw new Error(await res.text());
+    }
+    async function apiDelete(path) {        
+      const res = await fetch(`${API_BASE}${path}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) throw new Error(await res.text());
+    }
+
+    // === Halls ===
+    async function loadHalls() {
+      try {
+        const data = await apiGet("/halls");
+        const tbody = document.querySelector("#hallTable tbody");
+        tbody.innerHTML = "";
+        data.forEach(h => {
+          const tag = `<span class="tag ${h.status === "DangHoatDong" ? "tag-green" : "tag-yellow"}">${h.status}</span>`;
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${h.hallId}</td>
+            <td>${h.hallName}</td>
+            <td>${h.address}</td>
+            <td>${h.managerName ?? ""}</td>
+            <td>${tag}</td>
+            <td>
+              <button class="btn-outline btn-small" onclick="deleteHall(${h.hallId})">Xóa</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      } catch (e) { console.error(e); }
+    }
+
+    async function createHall() {
+      try {
+        const hall = {
+          hallName: document.getElementById("hallName").value,
+          address: document.getElementById("hallAddress").value,
+          managerName: document.getElementById("hallManager").value,
+          phoneNumber: document.getElementById("hallPhone").value,
+          status: "DangHoatDong"
+        };
+        await apiPost("/halls", hall);
+        alert("Đã thêm nhà văn hóa");
+        loadHalls();
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    async function deleteHall(id) {            
+      if (!confirm("Bạn có chắc muốn xóa nhà văn hóa này?")) return;
+      try {
+        await apiDelete(`/halls/${id}`);
+        alert("Đã xóa nhà văn hóa");
+        loadHalls();
+        loadRooms(); // vì phòng có thể bị cascade xóa
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    // === Rooms ===
+    async function loadRooms() {
+      try {
+        const data = await apiGet("/rooms");
+        const tbody = document.querySelector("#roomTable tbody");
+        tbody.innerHTML = "";
+        data.forEach(r => {
+          const tag = `<span class="tag ${r.status === "SanSang" ? "tag-green" : "tag-yellow"}">${r.status}</span>`;
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${r.roomId}</td>
+            <td>${r.roomName}</td>
+            <td>${r.hallId}</td>
+            <td>${r.roomType}</td>
+            <td>${r.basePricePerHour}</td>
+            <td>${tag}</td>
+            <td>
+              <button class="btn-outline btn-small" onclick="deleteRoom(${r.roomId})">Xóa</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      } catch (e) { console.error(e); }
+    }
+
+    async function createRoom() {
+      try {
+        const room = {
+          hallId: parseInt(document.getElementById("roomHallId").value),
+          roomName: document.getElementById("roomName").value,
+          roomType: document.getElementById("roomType").value,
+          capacity: parseInt(document.getElementById("roomCapacity").value || "0"),
+          basePricePerHour: parseFloat(document.getElementById("roomPrice").value || "0"),
+          status: "SanSang"
+        };
+        await apiPost("/rooms", room);
+        alert("Đã thêm phòng");
+        loadRooms();
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    async function deleteRoom(id) {         
+      if (!confirm("Bạn có chắc muốn xóa phòng này?")) return;
+      try {
+        await apiDelete(`/rooms/${id}`);
+        alert("Đã xóa phòng");
+        loadRooms();
+        loadBookings(); // có thể ảnh hưởng booking
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    // === Bookings ===
+    async function loadBookings() {
+      try {
+        const data = await apiGet("/bookings");
+        const tbody = document.querySelector("#bookingTable tbody");
+        tbody.innerHTML = "";
+        data.forEach(b => {
+          let color = "tag-yellow";
+          if (b.status === "DaDuyet") color = "tag-blue";
+          if (b.status === "DaHoanThanh") color = "tag-green";
+          if (b.status === "TuChoi" || b.status === "DaHuy") color = "tag-red";
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${b.bookingId}</td>
+            <td>${b.roomId}</td>
+            <td>${b.requesterName}</td>
+            <td>${b.startDateTime}</td>
+            <td>${b.endDateTime}</td>
+            <td><span class="tag ${color}">${b.status}</span></td>
+            <td>
+              <button class="btn-primary btn-small" onclick="approveBooking(${b.bookingId})">Duyệt</button>
+              <button class="btn-outline btn-small" onclick="cancelBooking(${b.bookingId})">Hủy</button>
+              <button class="btn-outline btn-small" onclick="deleteBooking(${b.bookingId})">Xóa</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      } catch (e) { console.error(e); }
+    }
+
+    async function createBooking() {
+      try {
+        const body = {
+          roomId: parseInt(document.getElementById("bookingRoomId").value),
+          activityId: null,
+          requesterName: document.getElementById("bookingRequesterName").value,
+          requesterPhone: document.getElementById("bookingPhone").value,
+          requesterUnit: document.getElementById("bookingUnit").value,
+          startDateTime: document.getElementById("bookingStart").value,
+          endDateTime: document.getElementById("bookingEnd").value,
+          expectedParticipants: parseInt(document.getElementById("bookingPeople").value || "0"),
+          status: "ChoDuyet"
+        };
+        await apiPost("/bookings", body);
+        alert("Tạo booking thành công");
+        loadBookings();
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    async function approveBooking(id) {
+      try {
+        await apiPut(`/bookings/${id}/approve`);
+        alert("Đã duyệt booking " + id);
+        loadBookings();
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    async function cancelBooking(id) {         
+      if (!confirm("Bạn có chắc muốn HỦY booking này?")) return;
+      try {
+        await apiDelete(`/bookings/${id}`);     // backend: DELETE là đặt trạng thái DaHuy
+        alert("Đã hủy booking");
+        loadBookings();
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    async function deleteBooking(id) {    
+      if (!confirm("Bạn có chắc muốn XÓA CỨNG booking này? (chỉ khi chưa có hóa đơn)")) return;
+      try {
+        await apiDelete(`/bookings/${id}/hard`);
+        alert("Đã xóa booking");
+        loadBookings();
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    // === Invoices ===
+    async function loadInvoices() {
+      try {
+        const data = await apiGet("/invoices");
+        const tbody = document.querySelector("#invoiceTable tbody");
+        tbody.innerHTML = "";
+        data.forEach(i => {
+          let color = "tag-yellow";
+          if (i.invoiceStatus === "DaThanhToan") color = "tag-green";
+          if (i.invoiceStatus === "DaHuy") color = "tag-red";
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${i.invoiceId}</td>
+            <td>${i.bookingId}</td>
+            <td>${i.roomId}</td>
+            <td>${i.totalHours}</td>
+            <td>${i.roomFee}</td>
+            <td>${i.totalAmount}</td>
+            <td><span class="tag ${color}">${i.invoiceStatus}</span></td>
+            <td>
+              <button class="btn-outline btn-small" onclick="cancelInvoice(${i.invoiceId})">Hủy</button>
+              <button class="btn-outline btn-small" onclick="deleteInvoice(${i.invoiceId})">Xóa</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      } catch (e) { console.error(e); }
+    }
+
+    async function generateInvoice() {
+      try {
+        const body = {
+          bookingId: parseInt(document.getElementById("invBookingId").value),
+          equipmentFee: parseFloat(document.getElementById("invEquipFee").value || "0"),
+          otherFee: parseFloat(document.getElementById("invOtherFee").value || "0"),
+          discountAmount: parseFloat(document.getElementById("invDiscount").value || "0"),
+          dueDays: parseInt(document.getElementById("invDueDays").value || "7"),
+          processedBy: null
+        };
+        await apiPost("/invoices/generate", body);
+        alert("Đã tạo hóa đơn");
+        loadInvoices();
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    async function cancelInvoice(id) {     
+      if (!confirm("Bạn có chắc muốn HỦY hóa đơn này?")) return;
+      try {
+        await apiPut(`/invoices/${id}/cancel`);
+        alert("Đã hủy hóa đơn");
+        loadInvoices();
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    async function deleteInvoice(id) {       
+      if (!confirm("Bạn có chắc muốn XÓA hóa đơn này? (không được phép nếu đã có thanh toán)")) return;
+      try {
+        await apiDelete(`/invoices/${id}`);
+        alert("Đã xóa hóa đơn");
+        loadInvoices();
+        loadPayments();
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    // === Payments ===
+    async function loadPayments() {
+      try {
+        const data = await apiGet("/payments");
+        const tbody = document.querySelector("#paymentTable tbody");
+        tbody.innerHTML = "";
+        data.forEach(p => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${p.paymentId}</td>
+            <td>${p.invoiceId}</td>
+            <td>${p.payerName}</td>
+            <td>${p.amountPaid}</td>
+            <td>${p.paymentMethod}</td>
+            <td>${p.paymentDate}</td>
+            <td>
+              <button class="btn-outline btn-small" onclick="deletePayment(${p.paymentId})">Xóa</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      } catch (e) { console.error(e); }
+    }
+
+    async function createPayment() {
+      try {
+        const body = {
+          invoiceId: parseInt(document.getElementById("payInvoiceId").value),
+          payerName: document.getElementById("payPayerName").value,
+          amountPaid: parseFloat(document.getElementById("payAmount").value || "0"),
+          paymentMethod: document.getElementById("payMethod").value,
+          paymentDate: new Date().toISOString(),
+          paymentRefCode: "",
+          notes: "",
+          confirmedBy: null
+        };
+        await apiPost("/payments", body);
+        alert("Đã thanh toán");
+        loadPayments();
+        loadInvoices();
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    async function deletePayment(id) {     
+      if (!confirm("Bạn có chắc muốn xóa bản ghi thanh toán này?")) return;
+      try {
+        await apiDelete(`/payments/${id}`);
+        alert("Đã xóa thanh toán");
+        loadPayments();
+        loadInvoices(); // trạng thái hóa đơn có thể thay đổi
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    // === Reports ===
+    async function loadReports() {
+      try {
+        const rev = await apiGet("/reports/revenue");
+        const tbody1 = document.querySelector("#revenueTable tbody");
+        tbody1.innerHTML = "";
+        rev.forEach(r => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${r.thang}</td><td>${r.tongHoaDon}</td><td>${r.tongTien}</td>`;
+          tbody1.appendChild(tr);
+        });
+
+        const use = await apiGet("/reports/usage");
+        const tbody2 = document.querySelector("#usageTable tbody");
+        tbody2.innerHTML = "";
+        use.forEach(u => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${u.thang}</td><td>${u.tongLuotDat}</td>`;
+          tbody2.appendChild(tr);
+        });
+      } catch (e) { console.error(e); }
+    }
+
+    // Load dữ liệu ban đầu
+    loadHalls();
+    loadRooms();
+    loadBookings();
+    loadInvoices();
+    loadPayments();
+    loadReports();
+  </script>
+</body>
+</html>
